@@ -122,21 +122,21 @@ def build_df(path):
 #df_a2 = build_df(WprimeA2)
 #df_a2.to_csv("Wprime_VBF_gWWpA2.csv")
 
-WprimeZ1_M500="/cms/mc/Samples/VBF_Wprime/Wprime_VBF_gWWpZ1_M500.root"
-df_z1_M500 = build_df(WprimeZ1_M500)
-df_z1_M500.to_csv("Wprime_VBF_gWWpZ1_M500.csv")
+#WprimeZ1_M500="/cms/mc/Samples/VBF_Wprime/Wprime_VBF_gWWpZ1_M500.root"
+#df_z1_M500 = build_df(WprimeZ1_M500)
+#df_z1_M500.to_csv("Wprime_VBF_gWWpZ1_M500.csv")
 
-WprimeZ1_M3000="/cms/mc/Samples/VBF_Wprime/Wprime_VBF_gWWpZ1_M3000.root"
-df_z1_M3000 = build_df(WprimeZ1_M3000)
-df_z1_M3000.to_csv("Wprime_VBF_gWWpZ1_M3000.csv")
+#WprimeZ1_M3000="/cms/mc/Samples/VBF_Wprime/Wprime_VBF_gWWpZ1_M3000.root"
+#df_z1_M3000 = build_df(WprimeZ1_M3000)
+#df_z1_M3000.to_csv("Wprime_VBF_gWWpZ1_M3000.csv")
 
-WprimeZ2_M500="/cms/mc/Samples/VBF_Wprime/Wprime_VBF_gWWpZ2_M500.root"
-df_z2_M500 = build_df(WprimeZ2_M500)
-df_z2_M500.to_csv("Wprime_VBF_gWWpZ2_M500.csv")
+#WprimeZ2_M500="/cms/mc/Samples/VBF_Wprime/Wprime_VBF_gWWpZ2_M500.root"
+#df_z2_M500 = build_df(WprimeZ2_M500)
+#df_z2_M500.to_csv("Wprime_VBF_gWWpZ2_M500.csv")
 
-WprimeZ2_M3000="/cms/mc/Samples/VBF_Wprime/Wprime_VBF_gWWpZ2_M3000.root"
-df_z2_M3000 = build_df(WprimeZ2_M3000)
-df_z2_M3000.to_csv("Wprime_VBF_gWWpZ2_M3000.csv")
+#WprimeZ2_M3000="/cms/mc/Samples/VBF_Wprime/Wprime_VBF_gWWpZ2_M3000.root"
+#df_z2_M3000 = build_df(WprimeZ2_M3000)
+#df_z2_M3000.to_csv("Wprime_VBF_gWWpZ2_M3000.csv")
 
 
 def ManyIntoOne(Directory):
@@ -157,9 +157,9 @@ def ManyIntoOne(Directory):
 #df_ttbarbkg = ManyIntoOne(TTbarbkg)
 #df_ttbarbkg.to_csv("TTbarbkg_15032022.csv")
 
-#WWbkg="/cms/mc/Samples/VBF_Wprime/WW_lvl_jj_bkg/*.root"
-#df_wwbkg = ManyIntoOne(WWbkg)
-#df_wwbkg.to_csv("WWbkg_15032022.csv")
+WWbkg="/cms/mc/Samples/VBF_Wprime/WW_lvl_jj_bkg/*.root"
+df_wwbkg = ManyIntoOne(WWbkg)
+df_wwbkg.to_csv("../WWbkg_22032022.csv")
 
 #WZ1bkg="/cms/mc/Samples/VBF_Wprime/WZ_lvl_jj_bkg/tag_1_delphes_events.root"
 #df_wz1bkg = build_df(WZ1bkg)

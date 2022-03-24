@@ -20,6 +20,9 @@ def DeltaPhi(row, col1, col2 = 'met_Phi'):
 
     return dphi
 
+def AbsDeltaPhi(rowa, col1a, col2a = 'met_Phi'):
+    return np.abs(DeltaPhi(rowa, col1a, col2a))
+
 def transverse_mass(l_pt, met_et, deltaphi):
     #Calculates the transverse mass between lepton and the met
     return np.sqrt(2 * l_pt * met_et * (1 - np.cos(deltaphi)))
@@ -122,10 +125,10 @@ def basic_allch_cuts(df, n_j = 2, pt_j = 30, n_b = 0, met = 50, n_tau = 2, n_e =
     cut_df = simple_cut(cut_df, "muon_size", Ctype = "==", val = n_mu)
     if n_mu == 1: 
         cut_df = simple_cut(cut_df, "muon_pt0", val = pt_mu)
-        cut_df['Delta_phi_mu_Met'] = cut_df.apply(DeltaPhi,axis = 1, args=('muon_phi0', 'missinget_phi'))
+        cut_df['Delta_phi_mu_Met'] = cut_df.apply(AbsDeltaPhi,axis = 1, args=('muon_phi0', 'missinget_phi'))
     if n_e == 1: 
         cut_df = simple_cut(cut_df, "electron_pt0", val = pt_e)
-        cut_df['Delta_phi_e_Met'] = cut_df.apply(DeltaPhi,axis = 1, args=('electron_phi0', 'missinget_phi'))
+        cut_df['Delta_phi_e_Met'] = cut_df.apply(AbsDeltaPhi,axis = 1, args=('electron_phi0', 'missinget_phi'))
     return cut_df
 
 def plot_var(dfs, var, binmin, binmax, steps, labelsc, colorsc, xlabelc, size, labs_sizes = 20):
@@ -224,3 +227,61 @@ def eVBFvars(df):
     Delta_eta = delta_eta(df.jet_eta0, df.jet_eta1)
     Mul_eta = df.jet_eta0*df.jet_eta1
     return m_T, m_jj, Delta_eta, Mul_eta
+
+def plot_significances(s, bkgs, var, ws, wbkgs, rango, txt, labs_sizes = 20):
+    arr_range = np.linspace(rango[0], rango[1], rango[2])
+
+    #TotB = 0
+    Bs = []
+    for j in range(len(bkgs)):
+        #TotB += np.array([(var(bkgs[j], valc = i).shape[0]* wbkgs[j]) for i in arr_range])
+        Bs.append(np.array([(var(bkgs[j], valc = i).shape[0]* wbkgs[j]) for i in arr_range]))
+
+    TotB = np.sum(Bs, axis=0)
+    S=np.array([var(s, valc = i).shape[0] * ws for i in arr_range])
+
+    sign1 = S/np.sqrt(S+TotB)
+    #= np.array([var(s, valc = i).shape[0] * ws \
+    #          / (TotB[np.where(arr_range == i)[0]] + var(s, valc = i).shape[0] * ws) ** 0.5 \
+    #         for i in arr_range])
+
+    plt.figure(figsize=(8, 7))
+    plt.plot(arr_range, sign1,'cs--')
+    plt.ylabel('Significance', fontsize = labs_sizes)
+    plt.xlabel(rf'${txt}$',fontsize = labs_sizes)
+    #plt.title('CMS$\it{Simulation}$', loc='left', fontweight='bold')
+    plt.title(r'$150 \,fb^{-1}(13 \,TeV)$', loc = 'right', fontsize = labs_sizes + 1)
+    #plt.savefig(f'{Path_files}/Significance_{txt}')
+
+def EfficiencyTables(EntriesPerCut):
+    print("N-1 efficiencies:")
+    for i in range(len(EntriesPerCut)-1):
+        print("Cut", i+1, np.around(100*EntriesPerCut[i+1]/EntriesPerCut[i],decimals=2))
+    print("Cumulative efficiencies:")
+    for i in range(len(EntriesPerCut)-1):
+        print("Cut", i+1, np.around(100*EntriesPerCut[i+1]/EntriesPerCut[0],decimals=2))
+
+def PrintSign(EntriesPerCut):
+    print("S/sqrt(S+B)")
+    for i in range(len(EntriesPerCut)):
+        #print("Cut", i+1, '%s' % float('%.4g' % EntriesPerCut[i][0]/np.sqrt(np.sum(EntriesPerCut[i]))) )
+        print("Cut", i+1, EntriesPerCut[i][0]/np.sqrt(np.sum(EntriesPerCut[i])) )
+
+#VBF Wprime cuts
+
+def pt_mu(df, valc = 0):
+    return simple_cut(df, "muon_pt0", Ctype = ">", val = valc)
+
+def pt_ele(df, valc = 0):
+    return simple_cut(df, "electron_pt0", Ctype = ">", val = valc)
+
+def pt_miss(df, valc = 0):
+    return simple_cut(df, "missinget_met", Ctype = ">", val = valc)
+
+def phi_mu_met(df, valc = 0):
+    return simple_cut(df, "Delta_phi_mu_Met", Ctype = ">", val = valc)
+
+def phi_e_met(df, valc = 0):
+    return simple_cut(df, "Delta_phi_e_Met", Ctype = ">", val = valc)
+
+def series_gt(Series, valc = 0): return Series[Series>valc]
