@@ -12,6 +12,6 @@ def NpRootConverter(FileName, HistoName, ListBins, ListContent, ListErrors):
     MyFile = ROOT.TFile(FileName+".root","recreate")
     MyH = ROOT.TH1F(HistoName, HistoName, len(ListBins)-1, array('d',ListBins))
     for i in range(len(ListContent)):
-        MyH.SetBinContent(i,ListContent[i])
-        MyH.SetBinError(i,ListErrors[i])
+        MyH.SetBinContent(i+1,ListContent[i])
+        MyH.SetBinError(i+1,ListErrors[i])
     MyFile.Write()
