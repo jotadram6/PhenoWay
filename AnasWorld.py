@@ -71,6 +71,18 @@ def OneTaggedAnalyzerM(row, coltag, colpt, coleta, colphi, colmass):
 
     return Tag_m
 
+def VBF1Selector(row, coltauloc, coljet0, coljet1):
+    if row[coltauloc]==1:
+        return row[coljet1]
+    else:
+        return row[coljet0]
+
+def VBF2Selector(row, coltauloc, coljet1, coljet2):
+    if row[coltauloc]==1 or row[coltauloc]==2:
+        return row[coljet2]
+    else:
+        return row[coljet1]
+
 #Base selection
 def simple_cut(df, branch, Ctype = ">", val = 0):
     if Ctype==">": mask = (df[branch] > val)
@@ -96,15 +108,16 @@ def basic_allch_cuts(df, n_j = 2, pt_j = 30, n_b = 0, met = 50, n_tau = 2, n_e =
     """
     cut_df = df.copy()
     cut_df = simple_cut(cut_df, "jet_size", Ctype = ">", val = n_j)
-    cut_df = simple_cut(cut_df, "jet_pt0", val = pt_j)
-    cut_df = simple_cut(cut_df, "jet_pt1", val = pt_j)
-    cut_df['Delta_phi_j0_j1'] = cut_df.apply(DeltaPhi,axis = 1, args=('jet_phi0', 'jet_phi1'))
     cut_df = simple_cut(cut_df, "missinget_met", val = met)
     #cut_df = simple_cut(cut_df, "n_tau", Ctype = "==", val = n_tau)
+    Nb_mask=(cut_df.jet_btag0.replace(np.nan, 0)+cut_df.jet_btag1.replace(np.nan, 0)+cut_df.jet_btag2.replace(np.nan, 0)+cut_df.jet_btag3.replace(np.nan, 0)) == n_b
+    cut_df.loc[Nb_mask]
     NTaus_mask=(cut_df.jet_tautag0.replace(np.nan, 0)+cut_df.jet_tautag1.replace(np.nan, 0)+cut_df.jet_tautag2.replace(np.nan, 0)+cut_df.jet_tautag3.replace(np.nan, 0)) == n_tau
     cut_df.loc[NTaus_mask]
     if n_tau == 1: 
-        #Falta escpger los dos jets mas energeticos diferentes al tautag 
+        #Falta escpger los dos jets mas energeticos diferentes al tautag
+        Ntau_locator = (cut_df.jet_tautag0.replace(np.nan, 0) + (2*cut_df.jet_tautag1.replace(np.nan, 0))+(4*cut_df.jet_tautag2.replace(np.nan, 0))+(8*cut_df.jet_tautag3.replace(np.nan, 0))) 
+        cut_df["ntaulocator"] = Ntau_locator
         tautag=["jet_tautag0","jet_tautag1","jet_tautag2","jet_tautag3"]
         jpt=["jet_pt0","jet_pt1","jet_pt2","jet_pt3"]
         jeta=["jet_eta0","jet_eta1","jet_eta2","jet_eta3"]
@@ -118,9 +131,32 @@ def basic_allch_cuts(df, n_j = 2, pt_j = 30, n_b = 0, met = 50, n_tau = 2, n_e =
         #cut_df['tau_pt0'] = Tauprop[0]; cut_df['tau_eta0'] = Tauprop[1]
         #cut_df['tau_phi0'] = Tauprop[2]; cut_df['tau_mass0'] = Tauprop[3]
         cut_df = simple_cut(cut_df, "tau_pt0", val = pt_tau)
-        cut_df['Delta_phi_tau_Met'] = cut_df.apply(DeltaPhi,axis = 1, args=('tau_phi0', 'missinget_phi'))
-    Nb_mask=(cut_df.jet_btag0.replace(np.nan, 0)+cut_df.jet_btag1.replace(np.nan, 0)+cut_df.jet_btag2.replace(np.nan, 0)+cut_df.jet_btag3.replace(np.nan, 0)) == n_b
-    cut_df.loc[Nb_mask]
+        cut_df['Delta_phi_tau_Met'] = cut_df.apply(AbsDeltaPhi,axis = 1, args=('tau_phi0', 'missinget_phi'))
+        #VBF jet 1 selector
+        cut_df["jetvbf_pt0"] = cut_df.apply(VBF1Selector,axis = 1, args=('ntaulocator', 'jet_pt0', 'jet_pt1'))
+        cut_df["jetvbf_eta0"] = cut_df.apply(VBF1Selector,axis = 1, args=('ntaulocator', 'jet_eta0', 'jet_eta1'))
+        cut_df["jetvbf_phi0"] = cut_df.apply(VBF1Selector,axis = 1, args=('ntaulocator', 'jet_phi0', 'jet_phi1'))
+        cut_df["jetvbf_mass0"] = cut_df.apply(VBF1Selector,axis = 1, args=('ntaulocator', 'jet_mass0', 'jet_mass1'))
+        #VBF jet 2 selector
+        cut_df["jetvbf_pt1"] = cut_df.apply(VBF2Selector,axis = 1, args=('ntaulocator', 'jet_pt1', 'jet_pt2'))
+        cut_df["jetvbf_eta1"] = cut_df.apply(VBF2Selector,axis = 1, args=('ntaulocator', 'jet_eta1', 'jet_eta2'))
+        cut_df["jetvbf_phi1"] = cut_df.apply(VBF2Selector,axis = 1, args=('ntaulocator', 'jet_phi1', 'jet_phi2'))
+        cut_df["jetvbf_mass1"] = cut_df.apply(VBF2Selector,axis = 1, args=('ntaulocator', 'jet_mass1', 'jet_mass2'))
+        cut_df = simple_cut(cut_df, "jetvbf_pt0", val = pt_j)
+        cut_df = simple_cut(cut_df, "jetvbf_pt1", val = pt_j)
+        cut_df['Delta_phi_j0_j1'] = cut_df.apply(AbsDeltaPhi,axis = 1, args=('jetvbf_phi0', 'jetvbf_phi1'))
+    if n_tau == 0:
+        cut_df["jetvbf_pt0"] = cut_df["jet_pt0"]
+        cut_df["jetvbf_eta0"] = cut_df["jet_eta0"]
+        cut_df["jetvbf_phi0"] = cut_df["jet_phi0"]
+        cut_df["jetvbf_mass0"] = cut_df["jet_mass0"]
+        cut_df["jetvbf_pt1"] = cut_df["jet_pt1"]
+        cut_df["jetvbf_eta1"] = cut_df["jet_eta1"]
+        cut_df["jetvbf_phi1"] = cut_df["jet_phi1"]
+        cut_df["jetvbf_mass1"] = cut_df["jet_mass1"]
+        cut_df = simple_cut(cut_df, "jetvbf_pt0", val = pt_j)
+        cut_df = simple_cut(cut_df, "jetvbf_pt1", val = pt_j)
+        cut_df['Delta_phi_j0_j1'] = cut_df.apply(AbsDeltaPhi,axis = 1, args=('jet_phi0', 'jet_phi1'))
     cut_df = simple_cut(cut_df, "electron_size", Ctype = "==", val = n_e)
     cut_df = simple_cut(cut_df, "muon_size", Ctype = "==", val = n_mu)
     if n_mu == 1: 
@@ -216,16 +252,23 @@ def crazy_plotter(dfs,part,index,labelsc,colorsc):
 
 def muVBFvars(df):
     m_T = transverse_mass(df.muon_pt0, df.missinget_met, df.Delta_phi_mu_Met)
-    m_jj = invariant_mass(df.jet_pt0, df.jet_eta0, df.jet_pt1, df.jet_eta1, df.Delta_phi_j0_j1 )
-    Delta_eta = delta_eta(df.jet_eta0, df.jet_eta1)
-    Mul_eta = df.jet_eta0*df.jet_eta1
+    m_jj = invariant_mass(df.jetvbf_pt0, df.jetvbf_eta0, df.jetvbf_pt1, df.jetvbf_eta1, df.Delta_phi_j0_j1 )
+    Delta_eta = delta_eta(df.jetvbf_eta0, df.jetvbf_eta1)
+    Mul_eta = df.jetvbf_eta0*df.jetvbf_eta1
     return m_T, m_jj, Delta_eta, Mul_eta
 
 def eVBFvars(df):
     m_T = transverse_mass(df.electron_pt0, df.missinget_met, df.Delta_phi_e_Met)
-    m_jj = invariant_mass(df.jet_pt0, df.jet_eta0, df.jet_pt1, df.jet_eta1, df.Delta_phi_j0_j1 )
-    Delta_eta = delta_eta(df.jet_eta0, df.jet_eta1)
-    Mul_eta = df.jet_eta0*df.jet_eta1
+    m_jj = invariant_mass(df.jetvbf_pt0, df.jetvbf_eta0, df.jetvbf_pt1, df.jetvbf_eta1, df.Delta_phi_j0_j1 )
+    Delta_eta = delta_eta(df.jetvbf_eta0, df.jetvbf_eta1)
+    Mul_eta = df.jetvbf_eta0*df.jetvbf_eta1
+    return m_T, m_jj, Delta_eta, Mul_eta
+
+def tauVBFvars(df):
+    m_T = transverse_mass(df.tau_pt0, df.missinget_met, df.Delta_phi_tau_Met)
+    m_jj = invariant_mass(df.jetvbf_pt0, df.jetvbf_eta0, df.jetvbf_pt1, df.jetvbf_eta1, df.Delta_phi_j0_j1 )
+    Delta_eta = delta_eta(df.jetvbf_eta0, df.jetvbf_eta1)
+    Mul_eta = df.jetvbf_eta0*df.jetvbf_eta1
     return m_T, m_jj, Delta_eta, Mul_eta
 
 def plot_significances(s, bkgs, var, ws, wbkgs, rango, txt, labs_sizes = 20):
@@ -275,6 +318,9 @@ def pt_mu(df, valc = 0):
 def pt_ele(df, valc = 0):
     return simple_cut(df, "electron_pt0", Ctype = ">", val = valc)
 
+def pt_tau(df, valc = 0):
+    return simple_cut(df, "tau_pt0", Ctype = ">", val = valc)
+
 def pt_miss(df, valc = 0):
     return simple_cut(df, "missinget_met", Ctype = ">", val = valc)
 
@@ -283,5 +329,17 @@ def phi_mu_met(df, valc = 0):
 
 def phi_e_met(df, valc = 0):
     return simple_cut(df, "Delta_phi_e_Met", Ctype = ">", val = valc)
+
+def phi_tau_met(df, valc = 0):
+    return simple_cut(df, "Delta_phi_tau_Met", Ctype = ">", val = valc)
+
+def mumet_ptratio(df, valc = 0):
+    return simple_cut(df, "mumet_ptratio", Ctype = ">", val = valc)
+
+def emet_ptratio(df, valc = 0):
+    return simple_cut(df, "emet_ptratio", Ctype = ">", val = valc)
+
+def taumet_ptratio(df, valc = 0):
+    return simple_cut(df, "taumet_ptratio", Ctype = ">", val = valc)
 
 def series_gt(Series, valc = 0): return Series[Series>valc]

@@ -157,9 +157,9 @@ def ManyIntoOne(Directory):
 #df_ttbarbkg = ManyIntoOne(TTbarbkg)
 #df_ttbarbkg.to_csv("TTbarbkg_15032022.csv")
 
-WWbkg="/cms/mc/Samples/VBF_Wprime/WW_lvl_jj_bkg/*.root"
-df_wwbkg = ManyIntoOne(WWbkg)
-df_wwbkg.to_csv("../WWbkg_22032022.csv")
+#WWbkg="/cms/mc/Samples/VBF_Wprime/WW_lvl_jj_bkg_v2/*.root"
+#df_wwbkg = ManyIntoOne(WWbkg)
+#df_wwbkg.to_csv("../WWbkg_28032022.csv")
 
 #WZ1bkg="/cms/mc/Samples/VBF_Wprime/WZ_lvl_jj_bkg/tag_1_delphes_events.root"
 #df_wz1bkg = build_df(WZ1bkg)
@@ -168,3 +168,23 @@ df_wwbkg.to_csv("../WWbkg_22032022.csv")
 #WZ2bkg="/cms/mc/Samples/VBF_Wprime/WZ2j_lvl_vv_bkg/tag_1_delphes_events.root"
 #df_wz2bkg = build_df(WZ2bkg)
 #df_wz2bkg.to_csv("WZ2_15032022.csv")
+
+#Wtaubkg="/cms/mc/Samples/VBF_Wprime/Wtauvbkg/*.root"
+#df_wtaubkg = ManyIntoOne(Wtaubkg)
+#df_wtaubkg.to_csv("../Wtaubkg_27032022.csv")
+
+#TTbartaubkg="/cms/mc/Samples/VBF_Wprime/TTbartaubkg/*.root"
+#df_ttbartaubkg = ManyIntoOne(TTbartaubkg)
+#df_ttbartaubkg.to_csv("../TTbartaubkg_27032022.csv")
+
+#WWtaubkg="/cms/mc/Samples/VBF_Wprime/WW_tauvl_jj_bkg/*.root"
+#df_wwtaubkg = ManyIntoOne(WWtaubkg)
+#df_wwtaubkg.to_csv("../WWtaubkg_29032022.csv")
+
+WZ1taubkg="/cms/mc/Samples/VBF_Wprime/WZ_tauvl_jj_bkg/run_01.root"
+df_wz1taubkg = build_df(WZ1taubkg)
+df_wz1taubkg.to_csv("WZ1tau_29032022.csv")
+
+WZ2taubkg="/cms/mc/Samples/VBF_Wprime/WZ2_tauvl_vv_bkg/run_01.root"
+df_wz2taubkg = build_df(WZ2taubkg)
+df_wz2taubkg.to_csv("WZ2tau_29032022.csv")
